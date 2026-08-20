@@ -18,8 +18,8 @@
 */
 
 const CONFIG = {
-  JOBS_CSV_URL: "",    // <-- paste the published "Job Openings" CSV link here
-  PROFILE_CSV_URL: "", // <-- paste the published "Recruiter Profile" CSV link here
+  JOBS_CSV_URL: "https://docs.google.com/spreadsheets/d/1r-dur5Ndz7CXm41aB__lIAcuJcrQniRHPjK6OqSfysA/edit?gid=2101256547#gid=2101256547",    // <-- paste the published "Job Openings" CSV link here
+  PROFILE_CSV_URL: "https://docs.google.com/spreadsheets/d/1r-dur5Ndz7CXm41aB__lIAcuJcrQniRHPjK6OqSfysA/edit?gid=1893347345#gid=1893347345", // <-- paste the published "Recruiter Profile" CSV link here
 
   // Local fallback data, used only when the URLs above are empty (for local preview/testing).
   FALLBACK_JOBS_CSV: "data/sample-jobs.csv",
