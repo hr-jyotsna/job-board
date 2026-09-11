@@ -4,6 +4,7 @@ const state = {
   jobs: [],
   filter: "Open",
   query: "",
+  recruiterEmail: "",
 };
 
 function csvUrlFor(configured, fallback) {
@@ -45,6 +46,9 @@ function renderProfile(rows) {
   const whatsapp = row["WhatsApp"] || "";
   const location = row["Location"] || "";
   const photo = row["Photo URL"] || "";
+
+  // Stripped of any "mailto:" prefix so buildApplyHref() can reuse it directly.
+  state.recruiterEmail = email.replace(/^mailto:/i, "").trim();
 
   document.getElementById("profile-name").textContent = name;
   document.getElementById("profile-title").textContent = [title, location].filter(Boolean).join(" · ");
@@ -88,6 +92,24 @@ function parseDateSafe(s) {
   if (!s) return 0;
   const t = Date.parse(s);
   return isNaN(t) ? 0 : t;
+}
+
+function buildApplyHref(job) {
+  const raw = (job["Apply Link"] || "").trim();
+
+  // Respect an explicit external link (e.g. a Google Form) if she's put one in the sheet.
+  if (/^https?:\/\//i.test(raw)) return raw;
+
+  // Otherwise, always route applications to the recruiter's own inbox, with the
+  // job title pre-filled as the subject so replies are easy to sort.
+  const email = state.recruiterEmail || raw.replace(/^mailto:/i, "").trim();
+  if (!email) return "#";
+
+  const subjectParts = ["Application:", job["Job Title"]];
+  if (job["Company"]) subjectParts.push(`(${job["Company"]})`);
+  const subject = encodeURIComponent(subjectParts.filter(Boolean).join(" "));
+
+  return `mailto:${email}?subject=${subject}`;
 }
 
 function jobMatchesQuery(job, query) {
@@ -153,7 +175,7 @@ function buildJobCard(job) {
   const footer = document.createElement("div");
   footer.className = "job-card-footer";
   const salary = job["Salary Range"] || "";
-  const applyLink = job["Apply Link"] || "#";
+  const applyLink = buildApplyHref(job);
   footer.innerHTML = `
     <span class="salary">${escapeHtml(salary)}</span>
     ${isOpen
