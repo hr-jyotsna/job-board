@@ -107,9 +107,14 @@ function buildApplyHref(job) {
 
   const subjectParts = ["Application:", job["Job Title"]];
   if (job["Company"]) subjectParts.push(`(${job["Company"]})`);
-  const subject = encodeURIComponent(subjectParts.filter(Boolean).join(" "));
+  const subject = subjectParts.filter(Boolean).join(" ");
 
-  return `mailto:${email}?subject=${subject}`;
+  // Gmail's web compose UI, opened in a normal browser tab — this avoids handing
+  // off to whatever (or nothing) is registered as the OS's native mailto app.
+  // Tradeoff: it assumes the candidate is signed into a Google account in that
+  // browser; someone who isn't will be prompted to sign in before composing.
+  const params = new URLSearchParams({ view: "cm", fs: "1", to: email, su: subject });
+  return `https://mail.google.com/mail/?${params.toString()}`;
 }
 
 function jobMatchesQuery(job, query) {
